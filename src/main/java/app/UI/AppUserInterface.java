@@ -1,72 +1,75 @@
 package app.UI;
 
-import app.repository.PerfilRepositoryImpl;
-import app.service.PerfilServiceImpl;
-import app.service.inputports.PerfilUseCase;
-import app.service.outputports.PerfilRepositoryInterface;
+import app.domain.Usuario;
+import app.repository.UsuarioRepositoryImpl;
+import app.service.UsuarioServiceImpl;
+import app.service.inputports.UsuarioUseCase;
+import app.service.outputports.UsuarioRepositoryInterface;
+import app.view.UsuarioView;
 import app.utils.FormRuleValidator;
-import app.view.PerfilView;
 
 public class AppUserInterface {
 
-    PerfilRepositoryInterface perfilRepositoryInterface = new PerfilRepositoryImpl();
-    PerfilUseCase perfilUseCase = new PerfilServiceImpl(perfilRepositoryInterface);
-    PerfilView perfilView = new PerfilView(perfilUseCase);
+    UsuarioRepositoryInterface usuarioRepositoryInterface = new UsuarioRepositoryImpl();
+    UsuarioUseCase usuarioUseCase = new UsuarioServiceImpl(usuarioRepositoryInterface);
+    UsuarioView usuarioView = new UsuarioView(usuarioUseCase);
 
-    public void startApp(){
-        int init = FormRuleValidator.validateInt("Presione 1 para iniciar la aplicación");
+    public void startApp() {
+
+        int option;
+
         do {
-            int option = FormRuleValidator.validateInt("""
-                    1. Registro.
-                    2. Login.
-                    3. Salir.
-                    """);
 
-            System.out.println("Bienvenido a la aplicacion de compra y venta de ropa de segunda mano -Reviste");
+            showMenu();
+
+            option = FormRuleValidator.validateInt("Select an option:");
 
             switch (option) {
-                case 1:
-                    System.out.println("Registro de nuevo perfil");
-                    perfilView.createPerfil();
-                    break;
-                case 2:
-                    System.out.println("Login");
-                    perfilMenu();
-                    break;
-                case 3:
-                    System.out.println("Salir");
-                    init = 0;
-                    break;
-                default:
-                    System.out.println("Seleccione una opción válida");
-            }
-        } while (init != 0);
-    }
-public void perfilMenu(){
-    while(true){
-        int option = FormRuleValidator.validateInt("""
-                    1. crear Perfil.
-                    2. Buscar Perfil por Id.
-                    3. Listar todos los Perfiles.
-                    """);
 
-        switch (option){
-            case 1:
-                System.out.println("Crear nuevo perfil");
-                perfilView.createPerfil();
-                break;
-            case 2:
-                System.out.println("Buscar perfil por Id");
-                int id = FormRuleValidator.validateInt("Ingrese el id del perfil a buscar");
-                perfilView.getPerfilById(id);
-                break;
-            case 3:
-                System.out.println("Listar todos los perfiles");
-                perfilView.getAllPerfils();
-                break;
-            default:
-                System.out.println("Seleccione una opcion valida");
-        }
+                case 1:
+                    Usuario usuario = usuarioView.readUsuario();
+                    usuarioUseCase.createUsuario(usuario);
+                    usuarioView.showMessage("User created successfully.");
+                    break;
+
+                case 2:
+                    usuarioView.showUsuarios(usuarioUseCase.getAllUsuarios());
+                    break;
+
+                case 3:
+                    int sellId = FormRuleValidator.validateInt("Enter user id to sell product:");
+                    usuarioUseCase.sellProduct(sellId);
+                    usuarioView.showMessage("Product sold.");
+                    break;
+
+                case 4:
+                    int publishId = FormRuleValidator.validateInt("Enter user id to publish product:");
+                    usuarioUseCase.publishProduct(publishId);
+                    usuarioView.showMessage("Product published.");
+                    break;
+
+                case 5:
+                    int buyId = FormRuleValidator.validateInt("Enter user id to buy product:");
+                    usuarioUseCase.buyProduct(buyId);
+                    usuarioView.showMessage("Product bought.");
+                    break;
+
+                case 0:
+                    System.out.println("Exit...");
+                    break;
+            }
+
+        } while (option != 0);
     }
-}
+
+    private void showMenu() {
+
+        System.out.println("\n=== USER MENU ===");
+        System.out.println("1. Create User");
+        System.out.println("2. List Users");
+        System.out.println("3. Sell Product");
+        System.out.println("4. Publish Product");
+        System.out.println("5. Buy Product");
+        System.out.println("0. Exit");
+    }
 }
